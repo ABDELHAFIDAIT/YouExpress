@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum as SqlEnum
 from app.models.base import Base
+from app.models.enums import StatutColis , EtatColis
+
 
 class Colis(Base):
     __tablename__ = "colis"
@@ -12,4 +14,7 @@ class Colis(Base):
     expediteur_id = Column(Integer, ForeignKey("expediteurs.id"), nullable=True)
     destinataire_id = Column(Integer, ForeignKey("destinataires.id"), nullable=True)
     zone_id = Column(Integer, ForeignKey("zones.id"), nullable=True)
+    statut = Column(SqlEnum(StatutColis), nullable=False)
+    statut = Column(SqlEnum(EtatColis), nullable=False)
+
     
