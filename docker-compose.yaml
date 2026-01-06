@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Service Base de Données
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  # Ouvre l'accès pour votre pgAdmin local
+    restart: always
+
+  # Service API (Votre application)
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - .:/app  # Synchronisation du code en temps réel (Hot Reload)
+
+volumes:
+  postgres_data:
