@@ -11,10 +11,10 @@ class Colis(Base):
     poids = Column(Float, nullable=False)
     ville_destination = Column(String, nullable=False)
     livreur_id = Column(Integer, ForeignKey("livreurs.id"), nullable=True)
-    expediteur_id = Column(Integer, ForeignKey("expediteurs.id"), nullable=True)
-    destinataire_id = Column(Integer, ForeignKey("destinataires.id"), nullable=True)
-    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=True)
-    statut = Column(SqlEnum(StatutColis), nullable=False)
-    statut = Column(SqlEnum(EtatColis), nullable=False)
+    expediteur_id = Column(Integer, ForeignKey("expediteurs.id") , nullable=False)
+    destinataire_id = Column(Integer, ForeignKey("destinataires.id"), nullable=False)
+    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=False)
+    statut = Column(SqlEnum(StatutColis), default=StatutColis.CREE, nullable=False)
+    etat = Column(SqlEnum(EtatColis), default=EtatColis.PENDING , nullable=False)
 
     

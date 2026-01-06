@@ -4,6 +4,6 @@ from app.models.user_base import User
 class Livreur(User):
     __tablename__ = "livreurs"
 
-    vehicule = Column(String, nullable=True)
+    vehicule = Column(String, nullable=False)
     zone_assigne = Column(String, nullable=False)
     
