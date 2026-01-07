@@ -22,7 +22,7 @@ class Historique(Base) :
     __tablename__ = "historiques"
     
     id = Column(Integer, primary_key=True, index=True)
-    id_colis = Column(Integer, ForeignKey("colis.id"), nullable=False)
+    id_colis = Column(Integer, ForeignKey("colis.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     ancien_status = Column(SAEnum(AncienStatut), nullable=False)
     nouveau_status = Column(SAEnum(NouveauStatut), nullable=False)
     timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
