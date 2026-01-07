@@ -33,31 +33,27 @@ class ColisBase(BaseModel):
     poids: int
     ville_destination: str
 
-
 class ColisCreateExpediteur(ColisBase):
     id_expediteur: int
     id_destinataire: int
     id_zone: int
-
 
 class ColisCreateGestionnaire(ColisBase):
     id_expediteur: int
     id_destinataire: int
     id_zone: int
 
-
 class ColisUpdate(BaseModel):
     description: Optional[str] = None
     poids: Optional[int] = None
     ville_destination: Optional[str] = None
-    statut: Optional[StatutColis] = None
     etat: Optional[EtatColis] = None
     id_livreur: Optional[int] = None
     id_zone: Optional[int] = None
 
+class ColisUpdateStatut(BaseModel):
+    statut: StatutColis
 
-class ColisUpdateStatut(BaseModel) :
-    statut : StatutColis
 
 
 class ColisOut(ColisBase):
@@ -67,8 +63,26 @@ class ColisOut(ColisBase):
     id_expediteur: int
     id_destinataire: int
     id_livreur: Optional[int] = None
-    id_zone: Optional[int] = None
+    id_zone: int
+
+    class Config:
+        from_attributes = True
+
+
+
+class ColisDetailOut(BaseModel):
+    id: int
+    description: str
+    poids: int
+    ville_destination: str
+    statut: str
+    etat: str
     
+    nom_zone: str
+    
+    expediteur: Optional[str] = None
+    destinataire: Optional[str] = None
+    livreur: Optional[str] = None
     class Config:
         from_attributes = True
 
