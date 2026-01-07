@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"  # Ouvre l'accès pour votre pgAdmin local
+      - "5433:5432"  # Ouvre l'accès pour votre pgAdmin local
     restart: always
 
   # Service API (Votre application)
