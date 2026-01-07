@@ -43,7 +43,7 @@ def get_destinataire_by_id(
     if not destinataire:
         raise HTTPException(
             status_code=404,
-            detail="Zone non trouvée"
+            detail="Destinatire non trouvée"
         )
     return destinataire
 

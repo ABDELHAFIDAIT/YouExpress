@@ -46,7 +46,7 @@ def get_gestionnaire_by_id(
     if not gestionnaire:
         raise HTTPException(
             status_code=404,
-            detail="Zone non trouvée"
+            detail="Gestionnaire non trouvée"
         )
         
     return gestionnaire
