@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models import Zone
 from app.schemas.logistics_schemas import ZoneCreate
 import logging
+
 logger = logging.getLogger("YouExpress")
 
 
@@ -33,7 +34,7 @@ class ZoneController:
         
     def seed_maroc_zones(self):
         
-        existing_zone = self.db.query(self.table).first()
+        existing_zone = self.db.query(Zone).first()
         if not existing_zone:
             logger.info("Table Zones vide. Insertion de 25 zones marocaines...")
             villes = [
@@ -70,7 +71,7 @@ class ZoneController:
             ]
             
             for v in villes:
-                zone = self.table(nom=v["nom"], code_postal=v["code_postal"])
+                zone = Zone(nom=v["nom"], code_postal=v["code_postal"])
                 self.db.add(zone)
             
             self.db.commit()
