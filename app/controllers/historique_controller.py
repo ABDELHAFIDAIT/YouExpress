@@ -9,18 +9,6 @@ class HistoriqueController :
         self.table = Historique
     
     
-    def create_historique(self, id_colis:int, ancien_status:str, nouveau_status:str) :
-        new_hist = self.table(
-            id_colis=id_colis,
-            ancien_status = ancien_status,
-            nouveau_status = nouveau_status
-        )
-        
-        self.db.add(new_hist)
-        self.db.commit()
-        self.db.refresh(new_hist)
-        
-        return new_hist
     
     
     def get_historique_colis(self, id_colis:int) :

@@ -53,7 +53,7 @@ def get_livreur_by_id(
     if not livreur:
         raise HTTPException(
             status_code=404,
-            detail="Zone non trouvée"
+            detail="Livreur non trouvée"
         )
     return livreur
 

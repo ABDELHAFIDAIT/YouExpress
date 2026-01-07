@@ -46,7 +46,7 @@ def get_expediteur_by_id(
     if not expediteur:
         raise HTTPException(
             status_code=404,
-            detail="Zone non trouvée"
+            detail="Expediteur non trouvée"
         )
         
     return expediteur
