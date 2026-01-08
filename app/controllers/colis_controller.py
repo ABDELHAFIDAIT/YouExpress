@@ -7,6 +7,8 @@ from app.models.destinataire import Destinataire
 from app.models.enums import StatutColis, EtatColis
 from app.schemas.logistics_schemas import ColisCreateExpediteur, ColisCreateGestionnaire, ColisUpdate, ColisUpdateStatut
 from app.controllers.historique_controller import HistoriqueController
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from app.exceptions import DatabaseError, BusinessRuleError, EntityNotFound
 
 
 
@@ -62,6 +64,9 @@ class ColisController :
             .filter(self.table.id == id_colis) \
             .first()
         
+        if not colis:
+            raise EntityNotFound(entity="Colis", id=id_colis)
+        
         return colis
     
     
@@ -73,11 +78,23 @@ class ColisController :
         
         new_colis = self.table(**colis_data)
         
-        self.db.add(new_colis)
-        self.db.commit()
-        self.db.refresh(new_colis)
+        try :
+            self.db.add(new_colis)
+            self.db.commit()
+            self.db.refresh(new_colis)
+            return new_colis
         
-        return new_colis
+        except IntegrityError as e:
+            self.db.rollback()
+            raise BusinessRuleError(f"Impossible de créer le colis : L'expéditeur, le destinataire ou la zone spécifiée n'existe pas.")
+        
+        except SQLAlchemyError as e :
+            self.db.rollback()
+            raise DatabaseError(f"Erreur lors de la création du colis : {str(e)}")
+        
+        except Exception as e:
+            self.db.rollback()
+            raise DatabaseError(f"Erreur : {str(e)}")
     
     
     def create_by_gestionnaire(self, data:ColisCreateGestionnaire) :
@@ -88,31 +105,55 @@ class ColisController :
         
         new_colis = self.table(**colis_data)
         
-        self.db.add(new_colis)
-        self.db.commit()
-        self.db.refresh(new_colis)
+        try :
+            self.db.add(new_colis)
+            self.db.commit()
+            self.db.refresh(new_colis)
+            return new_colis
         
-        return new_colis
+        except IntegrityError as e:
+            self.db.rollback()
+            raise BusinessRuleError(f"Impossible de créer le colis : L'expéditeur, le destinataire, le livreur ou la zone spécifiée n'existe pas.")
+        
+        except SQLAlchemyError as e :
+            self.db.rollback()
+            raise DatabaseError(f"Erreur lors de la création du colis : {str(e)}")
+        
+        except Exception as e:
+            self.db.rollback()
+            raise DatabaseError(f"Erreur : {str(e)}")
     
     
     def update_status(self, id_colis:int, statut_data:ColisUpdateStatut) :
-        colis = self.get_by_id(id_colis)
+        colis = self.db \
+                .query(self.table) \
+                .filter(self.table.id == id_colis) \
+                .first()
         
         if not colis:
-            return None
+            raise EntityNotFound(entity="Colis", id=id_colis)
+        
+        if colis.statut == StatutColis.LIVRE:
+            raise BusinessRuleError(f"Impossible de modifier un colis avec le statut '{colis.statut.value}'.")
         
         new_statut = statut_data.statut
         
-        if new_statut["statut"] != colis.statut :
-            self.historique_ctrl.create_historique(
-                id_colis=id_colis, 
-                ancien_status=colis.statut.value, 
-                nouveau_status=new_statut.value
-            )
-            
-            colis.statut = new_statut
-            self.db.commit()
-            self.db.refresh(colis)
+        if new_statut != colis.statut:
+            try:
+                self.historique_ctrl.create_historique(
+                    id_colis=id_colis, 
+                    ancien_status=colis.statut.value, 
+                    nouveau_status=new_statut.value
+                )
+                
+                colis.statut = new_statut
+                
+                self.db.commit()
+                self.db.refresh(colis)
+                
+            except SQLAlchemyError as e:
+                self.db.rollback()
+                raise DatabaseError(f"Erreur lors de la mise à jour du statut : {str(e)}")
         
         return colis
     
@@ -123,13 +164,27 @@ class ColisController :
         if not colis:
             return None
         
+        if not colis:
+            raise EntityNotFound(entity="Colis", id=id_colis)
+        
         new_data = update_data.model_dump(exclude_unset=True)
         
         for key, value in new_data.items():
             setattr(colis, key, value)
         
-        self.db.commit()
-        self.db.refresh(colis)
+        try:
+            self.db.commit()
+            self.db.refresh(colis)
+            
+        except IntegrityError as e:
+            self.db.rollback()
+            raise BusinessRuleError(
+                "Mise à jour impossible : La Zone ou le Livreur spécifié n'existe pas."
+            )
+            
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise DatabaseError(f"Erreur lors de la mise à jour : {str(e)}")
         
         return colis
     
@@ -138,24 +193,43 @@ class ColisController :
         colis = self.get_by_id(id_colis)
         
         if not colis :
-            return None
+            raise EntityNotFound(entity="Colis", id=id_colis)
         
-        self.db.delete(colis)
-        self.db.commit()
+        try:
+            self.db.delete(colis)
+            self.db.commit()
+            
+        except IntegrityError as e:
+            self.db.rollback()
+            raise BusinessRuleError(
+                "Impossible de supprimer ce colis car il possède un historique ou est lié à d'autres données."
+            )
+            
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise DatabaseError(f"Erreur lors de la suppression : {str(e)}")
         
         return colis
     
     
     def validate(self, id_colis:int) :
-        colis = colis = self.get_by_id(id_colis)
+        colis = self.db \
+            .query(self.table) \
+            .filter(self.table.id == id_colis, self.table.etat != EtatColis.ACCEPTED) \
+            .first()
         
         if not colis :
-            return None
+            raise EntityNotFound(entity="Colis", id=id_colis)
         
-        colis.etat = EtatColis.ACCEPTED
-        
-        self.db.commit()
-        self.db.refresh(colis)
+        try:
+            colis.etat = EtatColis.ACCEPTED
+            
+            self.db.commit()
+            self.db.refresh(colis)
+            
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise DatabaseError(f"Erreur lors de la validation : {str(e)}")
         
         return colis
     

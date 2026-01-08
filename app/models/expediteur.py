@@ -5,5 +5,5 @@ class Expediteur(User):
     __tablename__ = "expediteurs"
 
     adresse = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     

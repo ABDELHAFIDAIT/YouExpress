@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from app.models import Gestionnaire
 from app.schemas.user_schemas import AdminCreate
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from app.exceptions import DatabaseError, BusinessRuleError, EntityNotFound
 
 
 
@@ -11,10 +13,21 @@ class GestionnaireController:
         
     def create_gestionnaire(self , data : AdminCreate):
         admin = Gestionnaire(**data.model_dump())
-        self.db.add(admin)
-        self.db.commit()
-        self.db.refresh(admin)
-        return admin
+        
+        try :
+            self.db.add(admin)
+            self.db.commit()
+            self.db.refresh(admin)
+            return admin
+        
+        except IntegrityError as e :
+            self.db.rollback()
+            raise BusinessRuleError(f"Impossible de créer le compte : Cet email {data.email} est probablement déjà utilisé.")
+        
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise DatabaseError(f"Erreur lors de la création de gestionnaire : {str(e)}")
+    
     
     
     def get_gestionnaire_by_id(self, id: int):
@@ -23,6 +36,9 @@ class GestionnaireController:
             .filter(Gestionnaire.id == id)
             .first()
         )
+        
+        if not gestionnaire:
+            raise EntityNotFound(entity="Gestionnaire", id=id)
         
         return gestionnaire
     

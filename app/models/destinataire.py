@@ -5,4 +5,4 @@ class Destinataire(User) :
     __tablename__ = 'destinataires'
     
     adresse = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
