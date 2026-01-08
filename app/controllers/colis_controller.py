@@ -159,10 +159,10 @@ class ColisController :
     
     
     def update(self, id_colis:int, update_data:ColisUpdate) :
-        colis = self.get_by_id(id_colis)
-        
-        if not colis:
-            return None
+        colis = self.db \
+                .query(self.table) \
+                .filter(self.table.id == id_colis) \
+                .first()
         
         if not colis:
             raise EntityNotFound(entity="Colis", id=id_colis)
