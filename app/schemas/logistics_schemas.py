@@ -34,14 +34,14 @@ class ColisBase(BaseModel):
     ville_destination: str
 
 class ColisCreateExpediteur(ColisBase):
-    id_expediteur: int
-    id_destinataire: int
-    id_zone: int
+    expediteur_id: int
+    destinataire_id: int
+    zone_id: int
 
 class ColisCreateGestionnaire(ColisBase):
-    id_expediteur: int
-    id_destinataire: int
-    id_zone: int
+    expediteur_id: int
+    destinataire_id: int
+    zone_id: int
 
 class ColisUpdate(BaseModel):
     description: Optional[str] = None
