@@ -68,3 +68,10 @@ def get_all_livreurs(
     controller = LivreurController(db)
     return controller.get_all_livreurs()
 
+
+
+@router.post("/seed/", status_code=status.HTTP_201_CREATED)
+def seed_livreurs(db: Session = Depends(get_db)):
+    controller = LivreurController(db)
+    controller.seed_livreurs()
+    return {"message": "Seed des livreurs terminé"}

@@ -23,7 +23,7 @@ router = APIRouter(
 )
 
 def create_expediteur(
-    payload: DestinataireRead,
+    payload: DestinataireCreate,
     db: Session = Depends(get_db)
 ):
     controller = DestinatireController(db)
@@ -58,3 +58,11 @@ def get_all_destinataires(
 ):
     controller = DestinatireController(db)
     return controller.get_all_destinataires()
+
+
+
+@router.post("/seed/", status_code=status.HTTP_201_CREATED)
+def seed_destinataires(db: Session = Depends(get_db)):
+    controller = DestinatireController(db)
+    controller.seed_destinataires()
+    return {"message": "Seed des destinataires terminé"}

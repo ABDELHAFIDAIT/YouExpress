@@ -3,8 +3,10 @@ from app.models import Gestionnaire
 from app.schemas.user_schemas import AdminCreate
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from app.exceptions import DatabaseError, BusinessRuleError, EntityNotFound
+import logging
 
 
+logger = logging.getLogger("YouExpress")
 
 class GestionnaireController:
     def __init__(self , db: Session):
@@ -45,3 +47,27 @@ class GestionnaireController:
     
     def get_all_gestionnaires(self):
         return self.db.query(Gestionnaire).all()
+    
+    
+    def seed_gestionnaire(self):
+        try:
+            existing = self.db.query(Gestionnaire).filter_by(nom="Admin", prenom="Admin").first()
+            
+            if not existing:
+                logger.info("Table Gestionnaires vide ou Admin manquant. Création de l'admin...")
+                
+                admin = Gestionnaire(
+                    nom="Admin",
+                    prenom="Admin",
+                    telephone="+212522000000"
+                )
+                
+                self.db.add(admin)
+                self.db.commit()
+                logger.info("Gestionnaire 'Admin Admin  ' créé avec succès.")
+            else:
+                logger.info("Le gestionnaire existe déjà. Seeding ignoré.")
+                
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error(f"Erreur lors du seeding du gestionnaire : {str(e)}")
