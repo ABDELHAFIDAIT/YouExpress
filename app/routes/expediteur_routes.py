@@ -65,3 +65,8 @@ def get_all_gestionnaires(
 
 
 
+@router.post("/seed/", status_code=status.HTTP_201_CREATED)
+def seed_expediteurs(db: Session = Depends(get_db)):
+    controller = ExpediteurController(db)
+    controller.seed_expediteurs()
+    return {"message": "Seed des expediteurs terminé"}

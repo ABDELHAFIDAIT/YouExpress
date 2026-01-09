@@ -1,20 +1,22 @@
 from sqlalchemy import Column, Integer, DateTime, Enum as SAEnum, ForeignKey
 from app.models.base import Base 
 import enum
+from app.models.enums import StatutColis  
+
 from datetime import datetime, timezone
 
 class AncienStatut(str, enum.Enum) :
-    CREE = "créé"
-    COLLECTE = "collecté"
+    CREE = "cree"
+    COLLECTE = "collecte"
     EN_STOCK = "en stock"
     EN_TRANSIT = "en transit"
 
 
 class NouveauStatut(str, enum.Enum) :
-    COLLECTE = "collecté"
+    COLLECTE = "collecte"
     EN_STOCK = "en stock"
     EN_TRANSIT = "en transit"
-    LIVRE = "livré"
+    LIVRE = "livre"
 
 
 
@@ -23,6 +25,6 @@ class Historique(Base) :
     
     id = Column(Integer, primary_key=True, index=True)
     id_colis = Column(Integer, ForeignKey("colis.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
-    ancien_status = Column(SAEnum(AncienStatut), nullable=False)
-    nouveau_status = Column(SAEnum(NouveauStatut), nullable=False)
+    ancien_status = Column(SAEnum(StatutColis), nullable=False)  
+    nouveau_status = Column(SAEnum(StatutColis), nullable=False)  
     timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))

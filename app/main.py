@@ -11,10 +11,12 @@ from app.routes.historique_routes import router as historique_router
 from app.routes.livreur_routes import router as livreur_router
 from app.routes.zone_routes import router as zone_router
 from app.models import colis, zone, historique, livreur, expediteur, destinataire, gestionnaire
+from app.exceptions import add_exception_handlers
+from app.logging_conf import configure_logging
 
 
 
-logging.basicConfig(level=logging.INFO)
+configure_logging()
 logger = logging.getLogger("YouExpress")
 
 
@@ -32,18 +34,17 @@ async def lifespan(app: FastAPI):
     logger.info("Arrêt de YouExpress.")
 
 
-
 app = FastAPI(title="YouExpress API", lifespan=lifespan)
 
+add_exception_handlers(app)
 
-
-app.include_router(colis_router)
-app.include_router(destinataire_router)
-app.include_router(expediteur_router)
 app.include_router(gestionnaire_router)
-app.include_router(historique_router)
+app.include_router(expediteur_router)
+app.include_router(destinataire_router)
 app.include_router(livreur_router)
 app.include_router(zone_router)
+app.include_router(colis_router)
+app.include_router(historique_router)
 
 
 
