@@ -1,11 +1,11 @@
 from enum import Enum
 
 class StatutColis(str, Enum):
-    CREE = "crée"
+    CREE = "cree"
     COLLECTE = "collecte"
     EN_STOCK = "en_stock"
     EN_TRANSIT = "en_transit"
-    LIVRE = "livré"
+    LIVRE = "livre"
 
 
 

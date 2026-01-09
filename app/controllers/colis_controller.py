@@ -159,10 +159,11 @@ class ColisController :
     
     
     def update(self, id_colis:int, update_data:ColisUpdate) :
-        colis = self.get_by_id(id_colis)
-        
-        if not colis:
-            return None
+        colis = self.db \
+                .query(self.table) \
+                .filter(self.table.id == id_colis) \
+                .first()
+
         
         if not colis:
             raise EntityNotFound(entity="Colis", id=id_colis)
@@ -190,7 +191,11 @@ class ColisController :
     
     
     def delete(self, id_colis:int) :
-        colis = self.get_by_id(id_colis)
+        colis = self.db \
+                .query(self.table) \
+                .filter(self.table.id == id_colis) \
+                .first()
+
         
         if not colis :
             raise EntityNotFound(entity="Colis", id=id_colis)
@@ -299,7 +304,7 @@ class ColisController :
                 (Destinataire.nom + " " + Destinataire.prenom).label("destinataire")
             ) \
             .join(Zone, self.table.zone_id == Zone.id) \
-            .join(Livreur, self.table.livreur_id == Livreur.id) \
+            .outerjoin(Livreur, self.table.livreur_id == Livreur.id) \
             .join(Destinataire, self.table.destinataire_id == Destinataire.id) \
             .filter(self.table.expediteur_id == id_expediteur) \
             .all()
@@ -308,6 +313,7 @@ class ColisController :
     
     
     def get_for_livreur(self, id_livreur:int) :
+        self.db.flush()  
         colis = self.db \
             .query(
                 self.table.id,
@@ -346,7 +352,7 @@ class ColisController :
             ) \
             .join(Zone, self.table.zone_id == Zone.id) \
             .join(Expediteur, self.table.expediteur_id == Expediteur.id) \
-            .join(Livreur, self.table.livreur_id == Livreur.id) \
+            .outerjoin(Livreur, self.table.livreur_id == Livreur.id) \
             .filter(self.table.destinataire_id == id_destinataire, self.table.etat == EtatColis.ACCEPTED) \
             .all()
         
