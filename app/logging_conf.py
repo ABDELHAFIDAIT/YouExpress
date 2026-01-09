@@ -8,14 +8,11 @@ if not os.path.exists("logs"):
     os.makedirs("logs")
 
 def configure_logging():
-    """
-    Configuration centralisée des logs pour l'application.
-    """
     LOGGING_CONFIG = {
         "version": 1,
         "disable_existing_loggers": False,
         
-        # --- 1. FORMAT DES MESSAGES ---
+        # 1 - FORMAT DES MESSAGES ---
         "formatters": {
             "standard": {
                 "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -26,7 +23,7 @@ def configure_logging():
             },
         },
         
-        # --- 2. DESTINATIONS (HANDLERS) ---
+        # 2 - DESTINATIONS (HANDLERS) ---
         "handlers": {
             "console": {
                 "level": "INFO",
@@ -45,7 +42,7 @@ def configure_logging():
             },
         },
         
-        # --- 3. CONFIGURATION DES LOGGERS ---
+        # 3 - CONFIGURATION DES LOGGERS ---
         "loggers": {
             "root": {
                 "handlers": ["console", "file"],
